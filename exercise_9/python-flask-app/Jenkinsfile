@@ -41,27 +41,29 @@ pipeline {
             }
         }
 
-        stage('Run Application') {
-            steps {
-                echo 'Running application...'
-                sh '''
-                    if [ -f "$DEPLOY_DIR/app.pid" ]; then
-                        OLD_PID=$(cat "$DEPLOY_DIR/app.pid")
-                        kill "$OLD_PID" 2>/dev/null || true
-                    fi
+       
+stage('Run Application') {
+    steps {
+        echo 'Running application...'
+        sh '''
+            if [ -f "$DEPLOY_DIR/app.pid" ]; then
+                OLD_PID=$(cat "$DEPLOY_DIR/app.pid")
+                kill "$OLD_PID" 2>/dev/null || true
+            fi
 
-                    cd "$DEPLOY_DIR"
-                    nohup python3 app.py > app.log 2>&1 &
-                    echo $! > app.pid
-                    sleep 3
+            cd "$DEPLOY_DIR"
+            nohup "$WORKSPACE/$APP_DIR/.venv/bin/python" app.py > app.log 2>&1 &
+            echo $! > app.pid
+            sleep 3
 
-                    if ! kill -0 "$(cat app.pid)" 2>/dev/null; then
-                        cat app.log
-                        exit 1
-                    fi
-                '''
-            }
-        }
+            if ! kill -0 "$(cat app.pid)" 2>/dev/null; then
+                cat app.log
+                exit 1
+            fi
+        '''
+    }
+}
+
 
         stage('Test Application') {
             steps {
