@@ -10,7 +10,9 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                sh 'python3 -m unittest discover -s .'
+                dir('exercise_9/python-flask-app') {
+            sh 'python3 -m unittest discover -s . -p "test_*.py" -v'
+        }
             }
         }
         stage('Deploy') {
